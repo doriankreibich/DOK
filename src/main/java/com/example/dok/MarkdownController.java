@@ -1,20 +1,12 @@
 package com.example.dok;
 
-import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
-import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
-import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
-import com.vladsch.flexmark.ext.ins.InsExtension;
-import com.vladsch.flexmark.ext.tables.TablesExtension;
-import com.vladsch.flexmark.ext.wikilink.WikiLinkExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
-import com.vladsch.flexmark.util.data.MutableDataSet;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,23 +17,10 @@ public class MarkdownController {
     private final Parser parser;
     private final HtmlRenderer renderer;
 
-    public MarkdownController(MarkdownFileRepository repository) {
+    public MarkdownController(MarkdownFileRepository repository, Parser parser, HtmlRenderer renderer) {
         this.repository = repository;
-
-        MutableDataSet options = new MutableDataSet();
-        options.set(Parser.EXTENSIONS, Arrays.asList(
-                TablesExtension.create(),
-                StrikethroughExtension.create(),
-                TaskListExtension.create(),
-                WikiLinkExtension.create(),
-                AutolinkExtension.create(),
-                InsExtension.create()
-        ));
-        options.set(WikiLinkExtension.LINK_FIRST_SYNTAX, true);
-        options.set(HtmlRenderer.FENCED_CODE_LANGUAGE_CLASS_PREFIX, "");
-
-        this.parser = Parser.builder(options).build();
-        this.renderer = HtmlRenderer.builder(options).build();
+        this.parser = parser;
+        this.renderer = renderer;
     }
 
     private String normalizePath(String path) {
