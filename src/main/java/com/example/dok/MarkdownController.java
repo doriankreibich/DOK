@@ -2,10 +2,10 @@ package com.example.dok;
 
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
-import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension; // Corrected import path
+import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.ins.InsExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
-import com.vladsch.flexmark.ext.wikilink.WikilinkExtension;
+import com.vladsch.flexmark.ext.wikilink.WikiLinkExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
@@ -33,11 +33,11 @@ public class MarkdownController {
                 TablesExtension.create(),
                 StrikethroughExtension.create(),
                 TaskListExtension.create(),
-                WikilinkExtension.create(),
+                WikiLinkExtension.create(),
                 AutolinkExtension.create(),
-                InsExtension.create() // For ==highlighting==
+                InsExtension.create()
         ));
-        options.set(WikilinkExtension.LINK_FIRST_SYNTAX, true);
+        options.set(WikiLinkExtension.LINK_FIRST_SYNTAX, true);
         options.set(HtmlRenderer.FENCED_CODE_LANGUAGE_CLASS_PREFIX, "");
 
         this.parser = Parser.builder(options).build();

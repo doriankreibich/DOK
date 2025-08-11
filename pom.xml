@@ -6,7 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.5</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>com.example</groupId>
     <artifactId>DOK</artifactId>
@@ -15,9 +15,9 @@
     <description>DOK</description>
 
     <properties>
-        <!-- Set Java version to 21 -->
         <java.version>21</java.version>
         <flexmark.version>0.64.8</flexmark.version>
+        <lombok.version>1.18.32</lombok.version>
     </properties>
 
     <repositories>
@@ -28,7 +28,6 @@
     </repositories>
 
     <dependencies>
-        <!-- Spring Boot Starters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -61,7 +60,7 @@
         </dependency>
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
-            <artifactId>flexmark-ext-gfm-tasklist</artifactId> <!-- Corrected artifactId -->
+            <artifactId>flexmark-ext-gfm-tasklist</artifactId>
             <version>${flexmark.version}</version>
         </dependency>
         <dependency>
@@ -115,21 +114,16 @@
                     </excludes>
                 </configuration>
             </plugin>
-            <!--
-                The compiler plugin configuration is often inherited from the Spring Boot parent.
-                Explicitly defining it is fine, but ensure the annotationProcessorPaths
-                for Lombok is correctly configured if you face issues.
-            -->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version> <!-- Updated to a more recent version -->
+                <version>3.13.0</version>
                 <configuration>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <!-- Version is managed by Spring Boot's parent POM -->
                             <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
