@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const welcomeScreen = document.getElementById('welcome-screen');
     const createFileBtn = document.getElementById('create-file-btn');
     const createDirBtn = document.getElementById('create-dir-btn');
+    const deleteBtn = document.getElementById('delete-btn'); // New delete button
 
     // --- State Variables ---
     let selectedFile = null;
@@ -63,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Show editor, hide welcome screen
             welcomeScreen.style.display = 'none';
-            editorContainer.style.display = 'flex'; // *** THIS IS THE KEY CHANGE TO ENABLE SIDE-BY-SIDE VIEW ***
+            editorContainer.style.display = 'flex';
         } catch (error) {
             console.error('Error loading file:', error);
         }
@@ -136,6 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         dirHeader.addEventListener('click', (e) => {
             e.stopPropagation();
+            document.querySelectorAll('.file-entry.selected, .dir-header.selected').forEach(el => el.classList.remove('selected'));
+            dirHeader.classList.add('selected');
             const isOpen = dirEntry.classList.toggle('open');
             if (isOpen && !dirContent.hasChildNodes()) {
                 fetchFiles(file.path).then(subFiles => renderFileTree(subFiles, dirContent));
@@ -164,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createFileBtn.addEventListener('click', () => {
         const fileName = prompt('Enter file name (e.g., new-file.md):');
         if (fileName && fileName.trim()) {
-            const currentDir = document.querySelector('.dir-entry.open')?.dataset.path || '/';
+            const currentDir = document.querySelector('.dir-header.selected')?.parentElement.dataset.path || '/';
             const newPath = (currentDir === '/' ? '' : currentDir) + '/' + fileName.trim();
             fetch(`/create-file?path=${encodeURIComponent(newPath)}`, { method: 'POST' }).then(refreshFileBrowser);
         }
@@ -173,9 +176,41 @@ document.addEventListener('DOMContentLoaded', () => {
     createDirBtn.addEventListener('click', () => {
         const dirName = prompt('Enter directory name:');
         if (dirName && dirName.trim()) {
-            const currentDir = document.querySelector('.dir-entry.open')?.dataset.path || '/';
+            const currentDir = document.querySelector('.dir-header.selected')?.parentElement.dataset.path || '/';
             const newPath = (currentDir === '/' ? '' : currentDir) + '/' + dirName.trim();
             fetch(`/create-directory?path=${encodeURIComponent(newPath)}`, { method: 'POST' }).then(refreshFileBrowser);
+        }
+    });
+
+    // Delete button
+    deleteBtn.addEventListener('click', () => {
+        const selectedElement = document.querySelector('.file-entry.selected, .dir-header.selected');
+        if (!selectedElement) {
+            alert('Please select a file or directory to delete.');
+            return;
+        }
+
+        const pathToDelete = selectedElement.classList.contains('dir-header') 
+            ? selectedElement.parentElement.dataset.path 
+            : selectedElement.dataset.path;
+
+        if (confirm(`Are you sure you want to delete '${pathToDelete}'?`)) {
+            fetch(`/delete?path=${encodeURIComponent(pathToDelete)}`, { method: 'DELETE' })
+                .then(response => {
+                    if (!response.ok) {
+                        alert('Delete failed!');
+                    } else {
+                        // If the deleted file was the one being edited, clear the editor
+                        if (pathToDelete === selectedFile) {
+                            editorPane.value = '';
+                            previewPane.innerHTML = '';
+                            selectedFile = null;
+                            editorContainer.style.display = 'none';
+                            welcomeScreen.style.display = 'block';
+                        }
+                        refreshFileBrowser();
+                    }
+                });
         }
     });
 

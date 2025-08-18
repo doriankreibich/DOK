@@ -1,10 +1,10 @@
-package com.example.dok;
+package com.example.dok.controller;
 
+import com.example.dok.model.MarkdownFile;
+import com.example.dok.repository.MarkdownFileRepository;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -138,13 +138,19 @@ public class MarkdownController {
         }).orElse("Error: Source file not found.");
     }
 
-
-    @Bean
-    public CommandLineRunner initDatabase() {
-        return args -> {
-            if (!repository.existsByPath("/")) {
-                repository.save(new MarkdownFile("/", "/", true, null));
+    @DeleteMapping("/delete")
+    public String delete(@RequestParam String path) {
+        String normalizedPath = normalizePath(path);
+        if (normalizedPath.equals("/")) {
+            return "Error: Cannot delete the root directory.";
+        }
+        return repository.findByPath(normalizedPath).map(file -> {
+            if (file.isDirectory()) {
+                repository.deleteByPathStartingWith(normalizedPath);
+            } else {
+                repository.deleteByPath(normalizedPath);
             }
-        };
+            return "Deleted successfully!";
+        }).orElse("Error: File or directory not found.");
     }
 }
