@@ -1,8 +1,8 @@
 package com.example.dok.service;
 
-import com.example.dok.dto.FileEntry;
-import com.example.dok.dto.MoveFileRequest;
-import com.example.dok.dto.UpdateFileContentRequest;
+import com.example.dok.dto.FileEntryDto;
+import com.example.dok.dto.MoveFileRequestDto;
+import com.example.dok.dto.UpdateFileContentRequestDto;
 import com.example.dok.model.MarkdownFile;
 import com.example.dok.repository.MarkdownFileRepository;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ class MarkdownServiceTest {
     void saveMarkdown_shouldUpdateFile() {
         String path = "/docs/file.md";
         String content = "New content";
-        UpdateFileContentRequest request = new UpdateFileContentRequest(path, content);
+        UpdateFileContentRequestDto request = new UpdateFileContentRequestDto(path, content);
         MarkdownFile file = MarkdownFile.builder()
                 .path(path)
                 .name("file.md")
@@ -98,7 +98,7 @@ class MarkdownServiceTest {
     void move_shouldMoveFile_whenDestinationIsEmpty() {
         String source = "/docs/source.md";
         String destination = "/new-docs";
-        MoveFileRequest request = new MoveFileRequest(source, destination);
+        MoveFileRequestDto request = new MoveFileRequestDto(source, destination);
         MarkdownFile sourceFile = MarkdownFile.builder()
                 .path(source)
                 .name("source.md")
@@ -125,7 +125,7 @@ class MarkdownServiceTest {
 
         when(repository.findByPathStartingWith(path + "/")).thenReturn(List.of(childFile, childDir, grandchild));
 
-        List<FileEntry> result = markdownService.listFiles(path);
+        List<FileEntryDto> result = markdownService.listFiles(path);
 
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(f -> f.name().equals("file.md")));

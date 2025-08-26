@@ -1,9 +1,10 @@
 package com.example.dok.controller;
 
-import com.example.dok.dto.FileEntry;
-import com.example.dok.dto.MoveFileRequest;
-import com.example.dok.dto.UpdateFileContentRequest;
+import com.example.dok.dto.FileEntryDto;
+import com.example.dok.dto.MoveFileRequestDto;
+import com.example.dok.dto.UpdateFileContentRequestDto;
 import com.example.dok.service.MarkdownService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class MarkdownController {
     }
 
     @GetMapping("/list")
-    public List<FileEntry> listFiles(@RequestParam(defaultValue = "/") String path) {
+    public List<FileEntryDto> listFiles(@RequestParam(defaultValue = "/") String path) {
         return markdownService.listFiles(path);
     }
 
@@ -33,7 +34,7 @@ public class MarkdownController {
     }
 
     @PostMapping("/save")
-    public String saveMarkdown(@RequestBody UpdateFileContentRequest request) {
+    public String saveMarkdown(@RequestBody UpdateFileContentRequestDto request) {
         return markdownService.saveMarkdown(request);
     }
 
@@ -48,12 +49,17 @@ public class MarkdownController {
     }
 
     @PostMapping("/move")
-    public String move(@RequestBody MoveFileRequest request) {
+    public String move(@RequestBody MoveFileRequestDto request) {
         return markdownService.move(request);
     }
 
     @DeleteMapping("/delete")
-    public String delete(@RequestParam String path) {
-        return markdownService.delete(path);
+    public ResponseEntity<String> delete(@RequestParam String path) {
+        try {
+            markdownService.delete(path);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

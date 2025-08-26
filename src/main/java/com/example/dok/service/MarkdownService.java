@@ -1,8 +1,8 @@
 package com.example.dok.service;
 
-import com.example.dok.dto.FileEntry;
-import com.example.dok.dto.MoveFileRequest;
-import com.example.dok.dto.UpdateFileContentRequest;
+import com.example.dok.dto.FileEntryDto;
+import com.example.dok.dto.MoveFileRequestDto;
+import com.example.dok.dto.UpdateFileContentRequestDto;
 import com.example.dok.model.MarkdownFile;
 import com.example.dok.repository.MarkdownFileRepository;
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -45,14 +45,14 @@ public class MarkdownService {
         return !relativePath.contains("/");
     }
 
-    public List<FileEntry> listFiles(String path) {
+    public List<FileEntryDto> listFiles(String path) {
         String parentPath = path.endsWith("/") ? path : path + "/";
         if (parentPath.equals("//")) parentPath = "/";
 
         String finalParentPath = parentPath;
         return repository.findByPathStartingWith(parentPath).stream()
                 .filter(file -> isDirectChild(file, finalParentPath))
-                .map(file -> new FileEntry(file.getName(), file.getPath(), file.isDirectory()))
+                .map(file -> new FileEntryDto(file.getName(), file.getPath(), file.isDirectory()))
                 .collect(Collectors.toList());
     }
 
@@ -75,7 +75,7 @@ public class MarkdownService {
     }
 
     @Transactional
-    public String saveMarkdown(UpdateFileContentRequest request) {
+    public String saveMarkdown(UpdateFileContentRequestDto request) {
         String normalizedPath = normalizePath(request.path());
         Optional<MarkdownFile> fileOptional = repository.findByPath(normalizedPath);
 
@@ -127,7 +127,7 @@ public class MarkdownService {
     }
 
     @Transactional
-    public String move(MoveFileRequest request) {
+    public String move(MoveFileRequestDto request) {
         String normalizedSource = normalizePath(request.source());
         String normalizedDestination = normalizePath(request.destination());
 
@@ -160,15 +160,15 @@ public class MarkdownService {
     }
 
     @Transactional
-    public String delete(String path) {
+    public void delete(String path) {
         String normalizedPath = normalizePath(path);
         if (normalizedPath.equals("/")) {
-            return "Error: Cannot delete the root directory.";
+            throw new RuntimeException("Error: Cannot delete the root directory.");
         }
 
         Optional<MarkdownFile> fileOptional = repository.findByPath(normalizedPath);
         if (fileOptional.isEmpty()) {
-            return "Error: File or directory not found.";
+            throw new RuntimeException("Error: File or directory not found.");
         }
 
         MarkdownFile file = fileOptional.get();
@@ -177,6 +177,5 @@ public class MarkdownService {
         } else {
             repository.deleteByPath(normalizedPath);
         }
-        return "Deleted successfully!";
     }
 }

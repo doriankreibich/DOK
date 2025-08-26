@@ -8,57 +8,51 @@ The backend for DOK is a modern Spring Boot application that serves as the brain
 
 ## Project Structure
 
-The backend source code is organized into the following key packages:
-
--   `com.example.dok.config`: Contains Spring `@Configuration` classes, such as `MarkdownConfig` for setting up the Markdown parser.
--   `com.example.dok.controller`: Holds the `MarkdownController`, which defines the REST API endpoints and handles incoming HTTP requests.
--   `com.example.dok.dto`: Contains Data Transfer Objects (DTOs) used for encapsulating request data. This makes the API robust and easy to extend.
--   `com.example.dok.model`: Defines the JPA entity (`MarkdownFile`) that maps to the database table.
--   `com.example.dok.repository`: Includes the Spring Data JPA repository (`MarkdownFileRepository`) for database operations.
--   `com.example.dok.service`: Contains the core business logic in the `MarkdownService` class.
--   `src/test`: Contains a suite of unit tests built with JUnit 5 and Mockito to ensure the service layer is reliable.
+-   `com.example.dok.config`: Spring `@Configuration` classes.
+-   `com.example.dok.controller`: The `MarkdownController`, which defines the REST API endpoints.
+-   `com.example.dok.dto`: Data Transfer Objects (DTOs) for encapsulating request data.
+-   `com.example.dok.exception`: Custom exception classes and a global exception handler.
+-   `com.example.dok.model`: The `MarkdownFile` JPA entity.
+-   `com.example.dok.repository`: The Spring Data JPA repository for database operations.
+-   `com.example.dok.service`: The `MarkdownService` containing the core business logic.
+-   `src/test`: A suite of unit tests built with JUnit 5 and Mockito.
 
 ---
 
 ## Core Components & Design Patterns
 
--   **`MarkdownController`**: The entry point for all API requests. It is responsible for web-layer concerns and delegates all business logic to the `MarkdownService`.
--   **`MarkdownService`**: The heart of the backend. It orchestrates all business logic for file operations. It is marked as `@Transactional` to ensure data atomicity.
--   **`MarkdownFileRepository`**: A JPA repository that provides a clean abstraction layer over the H2 database.
--   **Records for DTOs**: Request bodies for complex operations (like moving or saving files) are encapsulated in immutable Java `record` classes for clarity and safety.
--   **Builder Pattern**: The `MarkdownFile` entity uses the Builder pattern (via Lombok's `@Builder`) for clean and readable object instantiation.
+-   **Controller Layer**: Handles HTTP requests, validates input, and delegates to the service layer. It is responsible for returning `ResponseEntity` objects with appropriate HTTP status codes.
+-   **Service Layer**: Contains the core business logic. It throws custom, specific exceptions for error conditions.
+-   **Global Exception Handler**: A `@RestControllerAdvice` class that catches exceptions thrown from the service layer and translates them into consistent, user-friendly `ResponseEntity` error messages.
+-   **Records for DTOs**: Request bodies are encapsulated in immutable Java `record` classes for clarity and safety.
+-   **Builder Pattern**: The `MarkdownFile` entity uses the Builder pattern for clean and readable object instantiation.
+
+---
+
+## Error Handling Strategy
+
+The backend uses a centralized exception handling mechanism to ensure consistent and meaningful API responses.
+
+1.  **Custom Exceptions**: The service layer throws specific, unchecked exceptions (e.g., `ResourceNotFoundException`, `InvalidRequestException`) when an operation cannot be completed.
+2.  **`@RestControllerAdvice`**: A global exception handler intercepts these custom exceptions.
+3.  **`ResponseEntity`**: The handler converts the caught exception into a `ResponseEntity` with a precise HTTP status code (e.g., `404 Not Found`, `400 Bad Request`) and a JSON body containing the error message.
+
+This approach keeps the controller and service layers clean of error-handling boilerplate and provides a predictable, RESTful experience for the client.
 
 ---
 
 ## API Endpoints
 
-| Method   | Path                  | Request Body                             | Description                                                                        |
-| :------- | :-------------------- | :--------------------------------------- | :--------------------------------------------------------------------------------- |
-| `GET`    | `/list`               | *N/A* (Uses `@RequestParam`)             | Lists the files and directories directly under a given path.                       |
-| `GET`    | `/view`               | *N/A* (Uses `@RequestParam`)             | Renders the Markdown content of a file to HTML.                                    |
-| `GET`    | `/raw`                | *N/A* (Uses `@RequestParam`)             | Retrieves the raw Markdown content of a file.                                      |
-| `POST`   | `/save`               | `UpdateFileContentRequest` (JSON)        | Saves or updates the content of a Markdown file.                                   |
-| `POST`   | `/create-file`        | *N/A* (Uses `@RequestParam`)             | Creates a new, empty Markdown file at the specified path.                          |
-| `POST`   | `/create-directory`   | *N/A* (Uses `@RequestParam`)             | Creates a new directory at the specified path.                                     |
-| `POST`   | `/move`               | `MoveFileRequest` (JSON)                 | Moves a file or directory from a source to a destination.                          |
-| `DELETE` | `/delete`             | *N/A* (Uses `@RequestParam`)             | Deletes a file or an entire directory (including its children).                    |
-
----
-
-## Business Logic & Data Integrity
-
--   **Path Normalization**: A private `normalizePath` method ensures that all file paths are clean and consistent.
--   **Transactional Operations**: All methods that modify the database (`save`, `create`, `move`, `delete`) are annotated with `@Transactional`. This guarantees that if any part of an operation fails, the entire transaction is rolled back, preventing the database from being left in an inconsistent state.
--   **DTO-Based Requests**: For `POST` requests with multiple parameters, the backend uses DTOs (e.g., `MoveFileRequest`) and the `@RequestBody` annotation. This is a modern practice that makes the API cleaner and more maintainable than using numerous request parameters.
-
----
-
-## Testing Strategy
-
-The backend includes a suite of unit tests for the `MarkdownService`. 
-
--   **Frameworks**: Tests are written using **JUnit 5** and **Mockito**.
--   **Approach**: The tests mock the `MarkdownFileRepository` to isolate the service layer. This allows for focused testing of the business logic (e.g., verifying that the correct repository methods are called) without needing to connect to a live database.
+| Method   | Path                  | Request Body (JSON)        | Success Response                                   | Error Responses                                       |
+| :------- | :-------------------- | :------------------------- | :------------------------------------------------- | :---------------------------------------------------- |
+| `GET`    | `/list`               | *N/A*                      | `200 OK` with a list of `FileEntry` objects.       | `404 Not Found`                                       |
+| `GET`    | `/view`               | *N/A*                      | `200 OK` with the rendered HTML content.           | `404 Not Found`                                       |
+| `GET`    | `/raw`                | *N/A*                      | `200 OK` with the raw Markdown content.            | `404 Not Found`                                       |
+| `POST`   | `/save`               | `UpdateFileContentRequest` | `200 OK` with a success message.                   | `400 Bad Request`, `404 Not Found`                    |
+| `POST`   | `/create-file`        | *N/A*                      | `201 Created` with a success message.              | `400 Bad Request`                                     |
+| `POST`   | `/create-directory`   | *N/A*                      | `201 Created` with a success message.              | `400 Bad Request`                                     |
+| `POST`   | `/move`               | `MoveFileRequest`          | `200 OK` with a success message.                   | `400 Bad Request`, `404 Not Found`                    |
+| `DELETE` | `/delete`             | *N/A*                      | `200 OK` with a success message.                   | `400 Bad Request`, `404 Not Found`                    |
 
 ---
 
@@ -68,4 +62,4 @@ The backend includes a suite of unit tests for the `MarkdownService`.
 -   **Spring Boot Starter Data JPA**: To simplify database access.
 -   **H2 Database**: An in-memory database perfect for development and testing.
 -   **Flexmark**: A high-performance Java library for parsing Markdown to HTML.
--   **Lombok**: To reduce boilerplate code with annotations like `@Builder`, `@Getter`, and `@Setter`.
+-   **Lombok**: To reduce boilerplate code with annotations like `@Builder`.
