@@ -2,61 +2,15 @@
 
 ## Project Overview
 
-DOK is a web-based, server-backed Markdown editor designed for a seamless note-taking experience. It features a file explorer for managing notes and a rich editor that supports live previews and custom syntax. The application is built with a Java Spring Boot backend and a vanilla JavaScript frontend.
+DOK is a dynamic, web-based Markdown editor designed for a seamless and efficient note-taking and documentation experience. It provides a clean, intuitive interface with a file explorer for easy navigation and management of your Markdown files, alongside a powerful editor with a live preview panel.
 
----
+The application is built with a robust Java Spring Boot backend responsible for file operations and Markdown processing, and a lightweight, vanilla JavaScript frontend that offers a responsive and interactive user experience.
 
-## Core Features & Technical Specifications
+## Key Features
 
-This document outlines the specific features of the application. **Any future updates must preserve this existing functionality.**
-
-### 1. Two-Column Layout
-
-The user interface is a stable, two-column layout.
-
-*   **Left Column (File Explorer):** A resizable pane that displays the file system. It has a default width of 250px and can be resized by the user by dragging its right border.
-*   **Right Column (Main Content):** This area contains the editor and its controls. It dynamically fills the remaining horizontal space.
-
-### 2. File Explorer
-
-The file explorer on the left provides full file system management within the notes directory.
-
-*   **Display Files and Directories:**
-    *   **Functionality:** Lists all files and directories recursively in a tree structure.
-    *   **Technical:** On startup, the frontend calls the `GET /api/files` endpoint to fetch the entire file tree.
-
-*   **Open File:**
-    *   **Functionality:** Clicking on a file name in the explorer opens its content in the editor.
-    *   **Technical:** This triggers a call to `GET /api/files/content?path=<file_path>` to retrieve the file's raw text content, which is then loaded into the editor component.
-
-*   **Create File:**
-    *   **Functionality:** A "New File" button prompts the user for a file name and creates a new, empty `.md` file.
-    *   **Technical:** This triggers a call to `POST /api/files` with the new file path in the request body.
-
-*   **Create Directory:**
-    *   **Functionality:** A "New Directory" button prompts the user for a directory name and creates a new, empty directory.
-    *   **Technical:** This triggers a call to `POST /api/files` with the new directory path in the request body.
-
-*   **Drag-and-Drop to Move:**
-    *   **Functionality:** Files and directories can be moved by dragging them onto a new parent directory.
-    *   **Technical:** This triggers a call to `POST /api/files/move` with the source and destination paths.
-
-### 3. Markdown Editor (Toast UI Editor)
-
-The editor is the central component for content creation.
-
-*   **Library:** The application uses **Toast UI Editor**.
-*   **Current State:** The editor is incorrectly configured with two tabs: "Markdown" and "WYSIWYG". This is a known issue to be resolved.
-*   **Auto-Saving:**
-    *   **Functionality:** Any changes made in the editor are saved automatically after the user pauses typing for a short duration (debounced).
-    *   **Technical:** A `keyup` event listener on the editor is debounced. When triggered, it calls the `saveFile()` JavaScript function, which sends the editor's content to the `POST /api/files/content` endpoint.
-
-### 4. Wikilinks
-
-The application supports Obsidian-style `[[wikilink]]` navigation.
-
-*   **Syntax:** Links are written as `[[FileName]]`. The `.md` extension is not included.
-*   **Functionality:** Clicking on a wikilink within the editor will open the corresponding file (e.g., `FileName.md`) in the editor.
-*   **Technical:** A click event handler on the editor checks if the clicked element is a wikilink. If so, it extracts the file name and calls the internal `loadFile()` JavaScript function, which fetches and displays the content of that file. The link resolution is handled entirely on the client-side. The files are saved with the raw `[[wikilink]]` text.
-
----
+*   **File Explorer:** A tree-like file browser to create, delete, move, and organize your files and directories.
+*   **Side-by-Side Editing:** A dual-pane view with a Markdown editor on one side and a live-rendered HTML preview on the other.
+*   **Live Preview:** As you type in the editor, the preview pane instantly updates to show the rendered HTML.
+*   **Auto-Saving:** Your work is automatically saved moments after you stop typing, ensuring you never lose your progress.
+*   **Drag-and-Drop:** Intuitively move files and folders by dragging them within the file explorer.
+*   **Markdown Extensions:** Supports common Markdown extensions like tables, strikethrough, and task lists for rich content creation.

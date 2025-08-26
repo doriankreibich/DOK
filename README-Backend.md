@@ -1,77 +1,74 @@
-# DOK Backend Architecture
+# Backend Technical Guide
 
-This document provides a precise technical specification of the Spring Boot backend for the DOK Markdown editor.
+## Overview
 
----
-
-## 1. Overview
-
-The backend is a Java-based Spring Boot application responsible for all file system operations. It exposes a REST API that the JavaScript frontend consumes to list, read, create, update, and move files and directories within a predefined root notes directory. It does not have a database; all operations are performed directly on the local file system.
+The backend for DOK is a Spring Boot application responsible for all business logic, including file system operations, database interactions, and Markdown-to-HTML conversion. It exposes a RESTful API that the JavaScript frontend consumes.
 
 ---
 
-## 2. Core Components & Classes
+## Project Structure
 
-### `DokApplication.java`
-- **Purpose:** Standard Spring Boot main entry point.
-- **Functionality:** Bootstraps the entire application using `@SpringBootApplication`. No custom logic is present in this file.
+The backend source code is organized into the following key packages:
 
-### `MarkdownConfig.java`
-- **Purpose:** Provides application-wide configuration, specifically the root path for file storage.
-- **Key Beans:**
-    - `notesDir()`:
-        - **Type:** `Bean`
-        - **Returns:** `Path`
-        - **Functionality:** Defines the root directory where all notes and subdirectories are stored. It is hardcoded to `C:/Users/Dorian/IdeaProjects/DOK/notes`. **Any change to the notes''' storage location must be made here.**
+-   `com.example.dok.config`: Contains Spring configuration classes, such as `MarkdownConfig` for setting up the Markdown parser.
+-   `com.example.dok.controller`: Holds the `MarkdownController`, which defines the REST API endpoints and handles incoming HTTP requests.
+-   `com.example.dok.dto`: Contains Data Transfer Objects (DTOs), like `FileEntry`, used for structuring data sent to the client.
+-   `com.example.dok.model`: Defines the JPA entity (`MarkdownFile`) that maps to the database table.
+-   `com.example.dok.repository`: Includes the Spring Data JPA repository interface (`MarkdownFileRepository`) for database operations.
+-   `com.example.dok.service`: Contains the core business logic in the `MarkdownService` class, which is called by the controller.
 
-### `MarkdownFile.java`
-- **Purpose:** A simple Java `record` that acts as a Data Transfer Object (DTO) for file and directory information.
-- **Fields:**
-    - `name`: `String` - The name of the file or directory.
-    - `path`: `String` - The unique, relative path of the file from the `notesDir` root.
-    - `isDirectory`: `boolean` - `true` if the object represents a directory, `false` if it is a file.
-    - `children`: `List<MarkdownFile>` - A list of child files and directories, used to build the tree structure.
-
-### `MarkdownFileRepository.java`
-- **Purpose:** This is the core service class containing all business logic for file system manipulation. It directly interacts with `java.nio.file` APIs.
-- **Key Methods:**
-    - `findAll()`:
-        - **Returns:** `List<MarkdownFile>`
-        - **Logic:** Recursively walks the file tree starting from the `notesDir` path provided by `MarkdownConfig`. It builds and returns a complete hierarchical list of all files and directories.
-    - `findContent(String path)`:
-        - **Parameters:** `path` - The relative path of the file.
-        - **Returns:** `String`
-        - **Logic:** Reads and returns the entire content of the specified file as a single string.
-    - `save(String path, String content)`:
-        - **Parameters:** `path` - The relative path of the file; `content` - The new text to write.
-        - **Logic:** Writes the provided `content` to the specified file. If the file does not exist, it is created. If it does exist, its content is overwritten.
-    - `create(String path)`:
-        - **Parameters:** `path` - The relative path for the new file or directory.
-        - **Logic:** Creates a new file or directory based on the path. It intelligently creates a directory if the path ends with a `/` and a file otherwise.
-    - `move(String fromPath, String toPath)`:
-        - **Parameters:** `fromPath` - The source path; `toPath` - The destination path.
-        - **Logic:** Moves a file or directory from the `fromPath` to the `toPath`.
-
-### `MarkdownController.java`
-- **Purpose:** A standard Spring `@RestController` that exposes the functionality of the `MarkdownFileRepository` as a public REST API.
-- **API Endpoints:**
-    - **`GET /api/files`**
-        - **Calls:** `repository.findAll()`
-        - **Returns:** `List<MarkdownFile>` - A JSON array representing the entire file tree.
-    - **`GET /api/files/content`**
-        - **Request Parameter:** `path` (String)
-        - **Calls:** `repository.findContent(path)`
-        - **Returns:** `String` - The raw text content of the requested file.
-    - **`POST /api/files/content`**
-        - **Request Body:** A `Map<String, String>` containing `"path"` and `"content"`.
-        - **Calls:** `repository.save(path, content)`
-        - **Returns:** `void` - Responds with HTTP 200 OK on success.
-    - **`POST /api/files`**
-        - **Request Body:** A `Map<String, String>` containing `"path"`.
-        - **Calls:** `repository.create(path)`
-        - **Returns:** `void` - Responds with HTTP 200 OK on success.
-    - **`POST /api/files/move`**
-        - **Request Body:** A `Map<String, String>` containing `"from"` and `"to"`.
-        - **Calls:** `repository.move(from, to)`
-        - **Returns:** `void` - Responds with HTTP 200 OK on success.
 ---
+
+## Core Components
+
+-   **`MarkdownController`**: The entry point for all API requests. It delegates all business logic to the `MarkdownService` and returns the results to the client.
+-   **`MarkdownService`**: The heart of the backend. It contains all the business logic for handling file operations, such as creating, saving, moving, and deleting files and directories. It is marked as `@Transactional` to ensure data integrity during database operations.
+-   **`MarkdownFileRepository`**: A JPA repository that provides an abstraction layer over the database. It includes custom queries for finding and deleting files by path.
+-   **`MarkdownConfig`**: Configures the Flexmark `Parser` and `HtmlRenderer` beans, enabling support for various Markdown extensions like tables, task lists, and wikilinks.
+
+---
+
+## API Endpoints
+
+All endpoints are prefixed by the application's context path.
+
+| Method   | Path                  | Parameters                               | Description                                                                        |
+| :------- | :-------------------- | :--------------------------------------- | :--------------------------------------------------------------------------------- |
+| `GET`    | `/list`               | `path` (optional, default: `/`)          | Lists the files and directories directly under the given path.                     |
+| `GET`    | `/view`               | `path`                                   | Renders the Markdown content of a file to HTML.                                    |
+| `GET`    | `/raw`                | `path`                                   | Retrieves the raw Markdown content of a file.                                      |
+| `POST`   | `/save`               | `path`, `content`                        | Saves or updates the content of a Markdown file.                                   |
+| `POST`   | `/create-file`        | `path`                                   | Creates a new, empty Markdown file at the specified path.                          |
+| `POST`   | `/create-directory`   | `path`                                   | Creates a new directory at the specified path.                                     |
+| `POST`   | `/move`               | `source`, `destination`                  | Moves a file or directory from the source path to the destination path.            |
+| `DELETE` | `/delete`             | `path`                                   | Deletes a file or an entire directory (including its children).                    |
+
+---
+
+## Business Logic Details
+
+-   **Path Normalization**: A private `normalizePath` method ensures that all file paths are clean, consistent, and free of duplicate slashes or trailing slashes.
+-   **Transactional Operations**: All methods that modify the database (`save`, `create`, `move`, `delete`) are annotated with `@Transactional`. This guarantees that if any part of an operation fails, the entire transaction is rolled back, preventing the database from being left in an inconsistent state.
+-   **Directory Logic**: Operations on directories (like `move` and `delete`) correctly handle all child files and subdirectories recursively.
+
+---
+
+## Data Model
+
+The application uses a single JPA entity, `MarkdownFile`, to represent both files and directories in the database. This is stored in an H2 in-memory database.
+
+-   `id`: The primary key.
+-   `path`: The full, unique path to the file or directory (e.g., `/docs/guide.md`).
+-   `name`: The name of the file or directory (e.g., `guide.md`).
+-   `isDirectory`: A boolean flag that is `true` for directories and `false` for files.
+-   `content`: A large text field (`@Lob`) that stores the Markdown content for files. It is `null` for directories.
+
+---
+
+## Key Dependencies
+
+-   **Spring Boot Starter Web**: Provides support for building web applications, including the RESTful API.
+-   **Spring Boot Starter Data JPA**: Simplifies database access with JPA and Hibernate.
+-   **H2 Database**: An in-memory database used for storing file system data.
+-   **Flexmark**: A high-performance Java library for parsing Markdown and rendering it to HTML, with support for numerous extensions.
+-   **Lombok**: Reduces boilerplate code by automatically generating getters, setters, constructors, etc.
