@@ -1,6 +1,8 @@
 package com.example.dok.service;
 
 import com.example.dok.dto.FileEntry;
+import com.example.dok.dto.MoveFileRequest;
+import com.example.dok.dto.UpdateFileContentRequest;
 import com.example.dok.model.MarkdownFile;
 import com.example.dok.repository.MarkdownFileRepository;
 import org.junit.jupiter.api.Test;
@@ -48,6 +50,22 @@ class MarkdownServiceTest {
     }
 
     @Test
+    void saveMarkdown_shouldUpdateFile() {
+        String path = "/docs/file.md";
+        String content = "New content";
+        UpdateFileContentRequest request = new UpdateFileContentRequest(path, content);
+        MarkdownFile file = new MarkdownFile(path, "file.md", false, "Old content");
+
+        when(repository.findByPath(path)).thenReturn(Optional.of(file));
+
+        String result = markdownService.saveMarkdown(request);
+
+        assertEquals("File saved successfully!", result);
+        verify(repository).save(file);
+        assertEquals(content, file.getContent());
+    }
+
+    @Test
     void delete_shouldDeleteFile_whenPathExists() {
         String path = "/docs/file-to-delete.md";
         MarkdownFile file = new MarkdownFile(path, "file-to-delete.md", false, "");
@@ -75,12 +93,13 @@ class MarkdownServiceTest {
     void move_shouldMoveFile_whenDestinationIsEmpty() {
         String source = "/docs/source.md";
         String destination = "/new-docs";
+        MoveFileRequest request = new MoveFileRequest(source, destination);
         MarkdownFile sourceFile = new MarkdownFile(source, "source.md", false, "content");
 
         when(repository.findByPath(source)).thenReturn(Optional.of(sourceFile));
         when(repository.existsByPath(destination + "/" + sourceFile.getName())).thenReturn(false);
 
-        String result = markdownService.move(source, destination);
+        String result = markdownService.move(request);
 
         assertEquals("Moved successfully!", result);
         verify(repository).save(sourceFile);
@@ -90,7 +109,6 @@ class MarkdownServiceTest {
     @Test
     void listFiles_shouldReturnDirectChildren() {
         String path = "/docs";
-        MarkdownFile parent = new MarkdownFile(path, "docs", true, null);
         MarkdownFile childFile = new MarkdownFile(path + "/file.md", "file.md", false, "");
         MarkdownFile childDir = new MarkdownFile(path + "/subdir", "subdir", true, null);
         MarkdownFile grandchild = new MarkdownFile(path + "/subdir/grandchild.md", "grandchild.md", false, "");

@@ -70,10 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function saveFile(path, content) {
         try {
-            await fetch(`/save?path=${encodeURIComponent(path)}`, {
+            await fetch('/save', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `content=${encodeURIComponent(content)}`
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: path, content: content })
             });
         } catch (error) {
             console.error('Error saving file:', error);
@@ -222,11 +222,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const destinationPath = destinationDir ? destinationDir.dataset.path : '/';
 
         if (draggedItemPath && destinationPath && !destinationPath.startsWith(draggedItemPath + '/')) {
-            fetch(`/move?source=${encodeURIComponent(draggedItemPath)}&destination=${encodeURIComponent(destinationPath)}`, { method: 'POST' })
-                .then(response => {
-                    if (!response.ok) alert('Move failed!');
+            fetch('/move', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source: draggedItemPath, destination: destinationPath })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    alert('Move failed!');
+                } else {
+                    // If the moved file was the one being edited, update its path
+                    if (draggedItemPath === selectedFile) {
+                        const fileName = draggedItemPath.substring(draggedItemPath.lastIndexOf('/') + 1);
+                        selectedFile = destinationPath === '/' ? '/' + fileName : destinationPath + '/' + fileName;
+                    }
                     refreshFileBrowser();
-                });
+                }
+            });
         }
         draggedItemPath = null;
     });
