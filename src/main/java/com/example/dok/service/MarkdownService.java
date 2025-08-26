@@ -1,6 +1,8 @@
 package com.example.dok.service;
 
 import com.example.dok.dto.FileEntry;
+import com.example.dok.dto.MoveFileRequest;
+import com.example.dok.dto.UpdateFileContentRequest;
 import com.example.dok.model.MarkdownFile;
 import com.example.dok.repository.MarkdownFileRepository;
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -73,8 +75,8 @@ public class MarkdownService {
     }
 
     @Transactional
-    public String saveMarkdown(String path, String content) {
-        String normalizedPath = normalizePath(path);
+    public String saveMarkdown(UpdateFileContentRequest request) {
+        String normalizedPath = normalizePath(request.path());
         Optional<MarkdownFile> fileOptional = repository.findByPath(normalizedPath);
 
         if (fileOptional.isEmpty()) {
@@ -86,7 +88,7 @@ public class MarkdownService {
             return "Error: Cannot save content to a directory.";
         }
 
-        file.setContent(content);
+        file.setContent(request.content());
         repository.save(file);
         return "File saved successfully!";
     }
@@ -116,9 +118,9 @@ public class MarkdownService {
     }
 
     @Transactional
-    public String move(String source, String destination) {
-        String normalizedSource = normalizePath(source);
-        String normalizedDestination = normalizePath(destination);
+    public String move(MoveFileRequest request) {
+        String normalizedSource = normalizePath(request.source());
+        String normalizedDestination = normalizePath(request.destination());
 
         Optional<MarkdownFile> sourceFileOpt = repository.findByPath(normalizedSource);
         if (sourceFileOpt.isEmpty()) {

@@ -1,6 +1,8 @@
 package com.example.dok.controller;
 
 import com.example.dok.dto.FileEntry;
+import com.example.dok.dto.MoveFileRequest;
+import com.example.dok.dto.UpdateFileContentRequest;
 import com.example.dok.service.MarkdownService;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,8 +33,8 @@ public class MarkdownController {
     }
 
     @PostMapping("/save")
-    public String saveMarkdown(@RequestParam String path, @RequestParam String content) {
-        return markdownService.saveMarkdown(path, content);
+    public String saveMarkdown(@RequestBody UpdateFileContentRequest request) {
+        return markdownService.saveMarkdown(request);
     }
 
     @PostMapping("/create-file")
@@ -46,8 +48,8 @@ public class MarkdownController {
     }
 
     @PostMapping("/move")
-    public String move(@RequestParam String source, @RequestParam String destination) {
-        return markdownService.move(source, destination);
+    public String move(@RequestBody MoveFileRequest request) {
+        return markdownService.move(request);
     }
 
     @DeleteMapping("/delete")
