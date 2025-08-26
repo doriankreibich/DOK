@@ -1,16 +1,16 @@
-# DOK - A Web-Based Markdown Editor
+# DOK - A Modern, Web-Based Markdown Editor
 
-## Project Overview
+## What is DOK?
 
-DOK is a dynamic, web-based Markdown editor designed for a seamless and efficient note-taking and documentation experience. It provides a clean, intuitive interface with a file explorer for easy navigation and management of your Markdown files, alongside a powerful editor with a live preview panel.
+DOK is a sleek and powerful web-based Markdown editor designed for a seamless note-taking and documentation experience. It combines a clean, intuitive user interface with a robust backend, allowing you to manage your Markdown files effortlessly. Whether you're drafting notes, writing documentation, or managing a personal knowledge base, DOK provides the tools you need in a clutter-free environment.
 
-The application is built with a robust Java Spring Boot backend responsible for file operations and Markdown processing, and a lightweight, vanilla JavaScript frontend that offers a responsive and interactive user experience.
+The application features a familiar two-pane layout with a file explorer on the left and a powerful editor on the right. It's built with a reliable Java Spring Boot backend and a lightweight, responsive vanilla JavaScript frontend.
 
 ## Key Features
 
-*   **File Explorer:** A tree-like file browser to create, delete, move, and organize your files and directories.
-*   **Side-by-Side Editing:** A dual-pane view with a Markdown editor on one side and a live-rendered HTML preview on the other.
-*   **Live Preview:** As you type in the editor, the preview pane instantly updates to show the rendered HTML.
-*   **Auto-Saving:** Your work is automatically saved moments after you stop typing, ensuring you never lose your progress.
-*   **Drag-and-Drop:** Intuitively move files and folders by dragging them within the file explorer.
-*   **Markdown Extensions:** Supports common Markdown extensions like tables, strikethrough, and task lists for rich content creation.
+*   **Intuitive File Management:** A tree-like file explorer allows you to create, delete, and organize your files and directories with ease.
+*   **Effortless Drag-and-Drop:** Simply drag files or folders to move them to a new location within the file explorer.
+*   **Side-by-Side Editing:** Write your Markdown in the editor pane and see it instantly rendered as HTML in the live preview pane.
+*   **Live Preview:** The preview updates in real-time as you type, providing immediate feedback on your formatting.
+*   **Auto-Saving:** Never worry about losing your work. DOK automatically saves your changes moments after you stop typing.
+*   **Rich Markdown Support:** Powered by Flexmark, DOK supports popular Markdown extensions, including tables, strikethrough, and task lists.
