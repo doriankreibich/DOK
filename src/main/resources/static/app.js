@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Element References ---
     const fileBrowser = document.getElementById('file-browser');
     const editorContainer = document.getElementById('editor-container');
     const editorPane = document.getElementById('editor-pane');
@@ -7,14 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const welcomeScreen = document.getElementById('welcome-screen');
     const createFileBtn = document.getElementById('create-file-btn');
     const createDirBtn = document.getElementById('create-dir-btn');
-    const deleteBtn = document.getElementById('delete-btn'); // New delete button
+    const deleteBtn = document.getElementById('delete-btn');
 
-    // --- State Variables ---
     let selectedFile = null;
     let saveTimeout = null;
     const converter = new showdown.Converter({ tables: true, strikethrough: true, tasklists: true, openLinksInNewWindow: true });
-
-    // --- Core Functions ---
 
     /**
      * Fetches the file list for a given directory path from the server.
@@ -26,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return await response.json();
         } catch (error) {
             console.error('Failed to fetch file tree:', error);
-            return []; // Return empty array on failure
+            return [];
         }
     }
 
@@ -34,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Renders the file and directory tree in the specified container element.
      */
     function renderFileTree(files, container) {
-        container.innerHTML = ''; // Clear previous content
+        container.innerHTML = '';
         files.sort((a, b) => {
             if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
             return a.name.localeCompare(b.name);
@@ -62,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
             previewPane.innerHTML = converter.makeHtml(content);
             selectedFile = path;
 
-            // Show editor, hide welcome screen
             welcomeScreen.style.display = 'none';
             editorContainer.style.display = 'flex';
         } catch (error) {
@@ -104,8 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-
-    // --- Element Creation ---
 
     function createFileElement(file) {
         const fileEntry = document.createElement('div');
@@ -150,9 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return dirEntry;
     }
 
-    // --- Event Listeners ---
-
-    // Live preview and debounced auto-save
     editorPane.addEventListener('input', () => {
         const newContent = editorPane.value;
         previewPane.innerHTML = converter.makeHtml(newContent);
@@ -163,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Create File/Directory buttons
     createFileBtn.addEventListener('click', () => {
         const fileName = prompt('Enter file name (e.g., new-file.md):');
         if (fileName && fileName.trim()) {
@@ -182,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Delete button
     deleteBtn.addEventListener('click', () => {
         const selectedElement = document.querySelector('.file-entry.selected, .dir-header.selected');
         if (!selectedElement) {
@@ -200,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!response.ok) {
                         alert('Delete failed!');
                     } else {
-                        // If the deleted file was the one being edited, clear the editor
                         if (pathToDelete === selectedFile) {
                             editorPane.value = '';
                             previewPane.innerHTML = '';
@@ -214,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Drag and Drop Logic ---
     let draggedItemPath = null;
     fileBrowser.addEventListener('dragstart', (e) => {
         const target = e.target.closest('.file-entry, .dir-header');
@@ -225,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    fileBrowser.addEventListener('dragover', (e) => e.preventDefault()); // Allow drop
+    fileBrowser.addEventListener('dragover', (e) => e.preventDefault());
 
     fileBrowser.addEventListener('drop', (e) => {
         e.preventDefault();
@@ -245,6 +231,5 @@ document.addEventListener('DOMContentLoaded', () => {
         draggedItemPath = null;
     });
 
-    // --- Initial Load ---
     refreshFileBrowser();
 });

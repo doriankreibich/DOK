@@ -1,4 +1,3 @@
-/* General Layout */
 body, html {
     margin: 0;
     padding: 0;
@@ -12,10 +11,9 @@ body, html {
     height: 100vh;
 }
 
-/* Sidebar / File Browser */
 .sidebar {
-    flex: 0 0 250px; /* Do not grow or shrink, initial width 250px */
-    min-width: 180px; /* Prevent it from becoming too small */
+    flex: 0 0 250px;
+    min-width: 180px;
     resize: horizontal;
     overflow: auto;
     border-right: 1px solid #d1d5da;
@@ -47,12 +45,11 @@ body, html {
 .dir-content { display: none; padding-left: 20px; border-left: 1px solid #e1e4e8; margin-left: 8px; }
 .dir-entry.open > .dir-content { display: block; }
 
-/* Main Content Area */
 .main-content {
     flex-grow: 1;
-    display: flex; /* Use flexbox for its children */
-    flex-direction: column; /* Stack children vertically */
-    overflow: hidden; /* Important for containing the editor */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 #welcome-screen {
@@ -62,20 +59,19 @@ body, html {
     color: #586069;
 }
 
-/* Editor Container - CRITICAL FOR SIDE-BY-SIDE LAYOUT */
 #editor-container {
-    flex-grow: 1; /* Fill all available vertical space */
-    display: none; /* Hidden by default, JS sets to 'flex' */
-    flex-direction: row; /* Arrange children (editor, preview) side-by-side */
+    flex-grow: 1;
+    display: none; 
+    flex-direction: row;
     height: 100%;
 }
 
 .editor-pane, .preview-pane {
-    flex-basis: 50%; /* Each pane takes up half the space */
+    flex-basis: 50%;
     height: 100%;
     overflow-y: auto;
     padding: 15px;
-    box-sizing: border-box; /* Ensures padding is included in the width */
+    box-sizing: border-box;
 }
 
 .editor-pane {
@@ -87,7 +83,6 @@ body, html {
     font-size: 14px;
 }
 
-/* Preview Pane Markdown Styles */
 .preview-pane h1, .preview-pane h2, .preview-pane h3 { border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
 .preview-pane p { line-height: 1.6; }
 .preview-pane code { background-color: rgba(27,31,35,0.05); border-radius: 3px; padding: 0.2em 0.4em; }
