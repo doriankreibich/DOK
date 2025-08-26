@@ -42,7 +42,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Flexmark Dependencies -->
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark</artifactId>
@@ -79,7 +78,6 @@
             <version>${flexmark.version}</version>
         </dependency>
 
-        <!-- Developer Tools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -92,7 +90,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Test Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

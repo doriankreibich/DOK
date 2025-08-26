@@ -13,14 +13,14 @@ public class MarkdownFile {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String path; // Full path, e.g., "/docs/guide.md"
+    private String path;
 
-    private String name; // "guide.md"
+    private String name;
 
     private boolean isDirectory;
 
     @Lob
-    @Column(length = 1000000) // Large object for file content
+    @Column(length = 1000000)
     private String content;
 
     public MarkdownFile() {
