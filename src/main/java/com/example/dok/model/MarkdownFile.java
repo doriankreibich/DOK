@@ -1,12 +1,14 @@
 package com.example.dok.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MarkdownFile {
 
     @Id
@@ -22,14 +24,4 @@ public class MarkdownFile {
     @Lob
     @Column(length = 1000000)
     private String content;
-
-    public MarkdownFile() {
-    }
-
-    public MarkdownFile(String path, String name, boolean isDirectory, String content) {
-        this.path = path;
-        this.name = name;
-        this.isDirectory = isDirectory;
-        this.content = content;
-    }
 }

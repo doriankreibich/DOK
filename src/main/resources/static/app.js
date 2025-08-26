@@ -231,7 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) {
                     alert('Move failed!');
                 } else {
-                    // If the moved file was the one being edited, update its path
                     if (draggedItemPath === selectedFile) {
                         const fileName = draggedItemPath.substring(draggedItemPath.lastIndexOf('/') + 1);
                         selectedFile = destinationPath === '/' ? '/' + fileName : destinationPath + '/' + fileName;

@@ -54,7 +54,12 @@ class MarkdownServiceTest {
         String path = "/docs/file.md";
         String content = "New content";
         UpdateFileContentRequest request = new UpdateFileContentRequest(path, content);
-        MarkdownFile file = new MarkdownFile(path, "file.md", false, "Old content");
+        MarkdownFile file = MarkdownFile.builder()
+                .path(path)
+                .name("file.md")
+                .isDirectory(false)
+                .content("Old content")
+                .build();
 
         when(repository.findByPath(path)).thenReturn(Optional.of(file));
 
@@ -68,7 +73,7 @@ class MarkdownServiceTest {
     @Test
     void delete_shouldDeleteFile_whenPathExists() {
         String path = "/docs/file-to-delete.md";
-        MarkdownFile file = new MarkdownFile(path, "file-to-delete.md", false, "");
+        MarkdownFile file = MarkdownFile.builder().path(path).name("file-to-delete.md").isDirectory(false).build();
         when(repository.findByPath(path)).thenReturn(Optional.of(file));
 
         String result = markdownService.delete(path);
@@ -80,7 +85,7 @@ class MarkdownServiceTest {
     @Test
     void delete_shouldDeleteDirectory_whenPathExists() {
         String path = "/docs/dir-to-delete";
-        MarkdownFile dir = new MarkdownFile(path, "dir-to-delete", true, null);
+        MarkdownFile dir = MarkdownFile.builder().path(path).name("dir-to-delete").isDirectory(true).build();
         when(repository.findByPath(path)).thenReturn(Optional.of(dir));
 
         String result = markdownService.delete(path);
@@ -94,7 +99,12 @@ class MarkdownServiceTest {
         String source = "/docs/source.md";
         String destination = "/new-docs";
         MoveFileRequest request = new MoveFileRequest(source, destination);
-        MarkdownFile sourceFile = new MarkdownFile(source, "source.md", false, "content");
+        MarkdownFile sourceFile = MarkdownFile.builder()
+                .path(source)
+                .name("source.md")
+                .isDirectory(false)
+                .content("content")
+                .build();
 
         when(repository.findByPath(source)).thenReturn(Optional.of(sourceFile));
         when(repository.existsByPath(destination + "/" + sourceFile.getName())).thenReturn(false);
@@ -109,9 +119,9 @@ class MarkdownServiceTest {
     @Test
     void listFiles_shouldReturnDirectChildren() {
         String path = "/docs";
-        MarkdownFile childFile = new MarkdownFile(path + "/file.md", "file.md", false, "");
-        MarkdownFile childDir = new MarkdownFile(path + "/subdir", "subdir", true, null);
-        MarkdownFile grandchild = new MarkdownFile(path + "/subdir/grandchild.md", "grandchild.md", false, "");
+        MarkdownFile childFile = MarkdownFile.builder().path(path + "/file.md").name("file.md").isDirectory(false).build();
+        MarkdownFile childDir = MarkdownFile.builder().path(path + "/subdir").name("subdir").isDirectory(true).build();
+        MarkdownFile grandchild = MarkdownFile.builder().path(path + "/subdir/grandchild.md").name("grandchild.md").isDirectory(false).build();
 
         when(repository.findByPathStartingWith(path + "/")).thenReturn(List.of(childFile, childDir, grandchild));
 

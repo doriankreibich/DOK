@@ -100,7 +100,12 @@ public class MarkdownService {
             return "Error: File or directory with this name already exists.";
         }
         String name = normalizedPath.substring(normalizedPath.lastIndexOf('/') + 1);
-        MarkdownFile newFile = new MarkdownFile(normalizedPath, name, false, "# New File\n");
+        MarkdownFile newFile = MarkdownFile.builder()
+                .path(normalizedPath)
+                .name(name)
+                .isDirectory(false)
+                .content("# New File\n")
+                .build();
         repository.save(newFile);
         return "File created successfully!";
     }
@@ -112,7 +117,11 @@ public class MarkdownService {
             return "Error: File or directory with this name already exists.";
         }
         String name = normalizedPath.substring(normalizedPath.lastIndexOf('/') + 1);
-        MarkdownFile newDir = new MarkdownFile(normalizedPath, name, true, null);
+        MarkdownFile newDir = MarkdownFile.builder()
+                .path(normalizedPath)
+                .name(name)
+                .isDirectory(true)
+                .build();
         repository.save(newDir);
         return "Directory created successfully!";
     }

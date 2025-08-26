@@ -18,7 +18,12 @@ public class DokApplication {
     public CommandLineRunner initDatabase(MarkdownFileRepository repository) {
         return args -> {
             if (!repository.existsByPath("/")) {
-                repository.save(new MarkdownFile("/", "/", true, null));
+                MarkdownFile root = MarkdownFile.builder()
+                        .path("/")
+                        .name("/")
+                        .isDirectory(true)
+                        .build();
+                repository.save(root);
             }
         };
     }
