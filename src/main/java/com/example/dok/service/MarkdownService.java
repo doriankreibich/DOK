@@ -160,15 +160,15 @@ public class MarkdownService {
     }
 
     @Transactional
-    public void delete(String path) {
+    public String delete(String path) {
         String normalizedPath = normalizePath(path);
         if (normalizedPath.equals("/")) {
-            throw new RuntimeException("Error: Cannot delete the root directory.");
+            return "Error: Cannot delete the root directory.";
         }
 
         Optional<MarkdownFile> fileOptional = repository.findByPath(normalizedPath);
         if (fileOptional.isEmpty()) {
-            throw new RuntimeException("Error: File or directory not found.");
+            return "Error: File or directory not found.";
         }
 
         MarkdownFile file = fileOptional.get();
@@ -177,5 +177,6 @@ public class MarkdownService {
         } else {
             repository.deleteByPath(normalizedPath);
         }
+        return "Deleted successfully!";
     }
 }
