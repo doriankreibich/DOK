@@ -15,7 +15,7 @@ public class DokApplication {
     }
 
     @Bean
-    public CommandLineRunner initDatabase(MarkdownFileRepository repository) {
+    public static CommandLineRunner initDatabase(MarkdownFileRepository repository) {
         return args -> {
             if (!repository.existsByPath("/")) {
                 MarkdownFile root = MarkdownFile.builder()
