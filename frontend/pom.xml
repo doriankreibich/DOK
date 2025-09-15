@@ -1,0 +1,77 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>dok-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>frontend</artifactId>
+    <packaging>jar</packaging>
+
+    <name>frontend</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies><!-- Dependencies are managed by package.json, so this section can be empty --></dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.15.0</version>
+                <configuration>
+                    <!-- Tells the plugin where to find your package.json -->
+                    <workingDirectory>${project.basedir}</workingDirectory>
+                    <!-- Tells the plugin where to install Node and npm -->
+                    <installDirectory>target</installDirectory>
+                </configuration>
+                <executions>
+                    <!-- 1. Installs Node and npm locally for the build -->
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Use a recent Long-Term-Support (LTS) version -->
+                            <nodeVersion>v20.11.1</nodeVersion>
+                        </configuration>
+                    </execution>
+                    <!-- 2. Runs 'npm install' -->
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <!-- 3. Runs 'npm run build' (which executes 'vite build') -->
+                    <execution>
+                        <id>npm run build</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <!-- This copies the built React app (from the 'dist' folder) into the final JAR file -->
+            <resource>
+                <directory>${project.basedir}/dist</directory>
+                <targetPath>static</targetPath>
+            </resource>
+        </resources>
+    </build>
+</project>
